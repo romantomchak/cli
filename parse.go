@@ -186,20 +186,21 @@ func assertArgs(expected []Arg, actual []string) error {
 }
 
 func assertOpts(permitted []Option, actual map[string]string) error {
-	for key, value := range actual {
-		for _, p := range permitted {
-			if p.Key() == key {
-				switch p.Type() {
-				case TypeInt:
-					if _, err := strconv.ParseInt(value, 10, 64); err != nil {
-						return fmt.Errorf("option --%s must be given an integer value, found %v", p.Key(), value)
-					}
-				case TypeNumber:
-					if _, err := strconv.ParseFloat(value, 64); err != nil {
-						return fmt.Errorf("option --%s must must be given a number, found %v", p.Key(), value)
-					}
+	for _, p := range permitted {
+		if _, ok := actual[p.Key()]; !ok && p.Required() {
+			return fmt.Errorf("option --%s is required and must be given a value", p.Key())
+		}
+
+		if value, ok := actual[p.Key()]; ok {
+			switch p.Type() {
+			case TypeInt:
+				if _, err := strconv.ParseInt(value, 10, 64); err != nil {
+					return fmt.Errorf("option --%s must be given an integer value, found %v", p.Key(), value)
 				}
-				break
+			case TypeNumber:
+				if _, err := strconv.ParseFloat(value, 64); err != nil {
+					return fmt.Errorf("option --%s must must be given a number, found %v", p.Key(), value)
+				}
 			}
 		}
 	}
