@@ -35,6 +35,8 @@ type Option interface {
 	Type() ValueType
 	// Required returns true if option is required
 	Required() bool
+	// Default returns default option value if set
+	Default() interface{}
 
 	// WithChar sets the char key for the option.
 	WithChar(char rune) Option
@@ -42,6 +44,8 @@ type Option interface {
 	WithType(ft ValueType) Option
 	// WithRequired sets the option as required
 	WithRequired() Option
+	//WithDefault sets default option value
+	WithDefault(val interface{}) Option
 }
 
 // NewOption creates a new option with a given key and description.
@@ -59,6 +63,7 @@ type option struct {
 	descr string
 	tp    ValueType
 	req   bool
+	def   interface{}
 }
 
 func (f option) Key() string {
@@ -85,6 +90,10 @@ func (f option) Required() bool {
 	return f.req
 }
 
+func (f option) Default() interface{} {
+	return f.def
+}
+
 func (f option) WithChar(char rune) Option {
 	f.char = char
 	return f
@@ -97,5 +106,10 @@ func (f option) WithType(tp ValueType) Option {
 
 func (f option) WithRequired() Option {
 	f.req = true
+	return f
+}
+
+func (f option) WithDefault(val interface{}) Option {
+	f.def = val
 	return f
 }

@@ -148,6 +148,18 @@ func splitArgsAndOpts(appargs []string, accptOpts []Option) (args []string, opts
 	if danglingOpt != "" {
 		return args, opts, fmt.Errorf("dangling option --%s", danglingOpt)
 	}
+
+	for _, accptOpt := range accptOpts {
+		if _, ok := opts[accptOpt.Key()]; !ok && accptOpt.Default() != nil {
+			switch accptOpt.Type() {
+			case TypeBool:
+				opts[accptOpt.Key()] = strconv.FormatBool(accptOpt.Default().(bool))
+			default:
+				opts[accptOpt.Key()] = accptOpt.Default().(string)
+			}
+		}
+	}
+
 	return args, opts, nil
 }
 
